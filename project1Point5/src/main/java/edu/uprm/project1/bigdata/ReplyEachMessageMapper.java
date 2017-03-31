@@ -6,7 +6,6 @@ import org.apache.hadoop.mapreduce.Mapper;
 import twitter4j.*;
 
 import java.io.IOException;
-import java.util.List;
 
 /**
  * Created by ccgarzona on 3/22/17.
