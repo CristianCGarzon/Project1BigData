@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <link href="interactive_tree.css" rel="stylesheet" type="text/css" />
+    <script type="text/javascript" src="http://mbostock.github.com/d3/d3.js?1.27.2"></script>
+    <script type="text/javascript" src="http://mbostock.github.com/d3/d3.layout.js?1.27.2"></script>
+
+    <style>
+        text {
+            font: 12px sans-serif;
+        }
+        svg {
+            display: block;
+        }
+        html, body, svg {
+            margin: 0px;
+            padding: 0px;
+            height: 100%;
+            width: 100%;
+        }
+
+        <style type="text/css">
+            html, #page { padding:0; margin:0;}
+            body { margin:0; padding:0; width:100%; color:#959595; font:normal 12px/2.0em Sans-Serif;} 
+            h1, h2, h3, h4, h5, h6 {color:darkgreen;}
+            #page { background:#fff;}
+            #header, #footer, #top-nav, #content, #content #contentbar, #content #sidebar { margin:0; padding:0;}
+
+            /* Logo */
+            #logo { padding:0; width:auto; float:left;}
+            #logo h1 a, h1 a:hover { color:darkgreen; text-decoration:none;}
+            #logo h1 span { color:#BCCE98;}
+
+            /* Header */
+            #header { background:#fff; }
+            #header-inner { margin:0 auto; padding:0; width:970px;}
+            
+            /* Feature */
+            .feature { background:green;padding:18px;}
+            .feature-inner { margin:auto;width:970px; }
+            .feature-inner h1 {color:#DAE9BC;font-size:32px;}
+            
+            /* Menu */
+            #top-nav { margin:0 auto; padding:0px 0 0; height:37px; float:right;}
+            #top-nav ul { list-style:none; padding:0; height:37px; float:left;}
+            #top-nav ul li { margin:0; padding:0 0 0 8px; float:left;}
+            #top-nav ul li a { display:block; margin:0; padding:8px 20px; color:green; text-decoration:none;}
+            #top-nav ul li.active a, #top-nav ul li a:hover { color:#BCCE98;}
+            
+            /* Content */
+            #content-inner { margin:0 auto; padding:10px 0; width:970px;background:#fff;}
+            #content #contentbar { margin:0; padding:0; float:right; width:760px;}
+            #content #contentbar .article { margin:0 0 24px; padding:0 20px 0 15px; }
+            #content #sidebar { padding:0; float:left; width:200px;}
+            #content #sidebar .widget { margin:0 0 12px; padding:8px 8px 8px 13px;line-height:1.4em;}
+            #content #sidebar .widget h3 a { text-decoration:none;}
+            #content #sidebar .widget ul { margin:0; padding:0; list-style:none; color:#959595;}
+            #content #sidebar .widget ul li { margin:0;}
+            #content #sidebar .widget ul li { padding:4px 0; width:185px;}
+            #content #sidebar .widget ul li a { color:green; text-decoration:none; margin-left:-16px; padding:4px 8px 4px 16px;}
+            #content #sidebar .widget ul li a:hover { color:#BCCE98; font-weight:bold; text-decoration:none;}
+            
+            /* Footerblurb */
+            #footerblurb { background:#DAE9BC;color:green;}
+            #footerblurb-inner { margin:0 auto; width:922px; padding:24px;}
+            #footerblurb .column { margin:0; text-align:justify; float:left;width:250px;padding:0 24px;}
+            
+            /* Footer */
+            #footer { background:#fff;}
+            #footer-inner { margin:auto; text-align:center; padding:12px; width:922px;}
+            #footer a {color:green;text-decoration:none;}
+            
+            /* Clear both sides to assist with div alignment  */
+            .clr { clear:both; padding:0; margin:0; width:100%; font-size:0px; line-height:0px;}
+        </style>
+    </style>
+</head>
+<body>
+    <div id="page">
+        <header id="header">
+            <div id="header-inner"> 
+                <div id="logo">
+                    <h1><a href="#">Spring 2017 Special Topics - Big Data</span></a></h1>
+                </div>
+                <div id="top-nav">
+                    <ul>
+                        <li><a href="#">About</a></li>
+                        <li><a href="#">Contact</a></li>
+                        <li><a href="#">FAQ</a></li>
+                        <li><a href="#">Help</a></li>
+                    </ul>
+                </div>
+                <div class="clr"></div>
+            </div>
+        </header>
+        <div class="feature">
+            <div class="feature-inner">
+                <h1>Project 1 - Big Data</h1>
+            </div>
+        </div>
+        <div id="content">
+            <div id="content-inner">
+                <main id="contentbar">
+                    <div class="article">
+                        <div id="chart"></div>
+                        <script type="text/javascript">
+
+                            var w = 500,
+                            h = 700,
+                            i = 0,
+                            duration = 500,
+                            root;
+
+                            var tree = d3.layout.tree()
+                            .size([h, w]);
+
+                            var diagonal = d3.svg.diagonal()
+                            .projection(function(d) { return [d.y, d.x]; });
+
+                            var vis = d3.select("#chart").append("svg:svg")
+                            .attr("width", w)
+                            .attr("height", h)
+                            .append("svg:g")
+                            .attr("transform", "translate(40,0)");
+
+                            d3.json("math_map_compact.json", function(json) {
+                              json.x0 = 800;
+                              json.y0 = 0;
+                              update(root = json);
+                          });
+
+                            function update(source) {
+                              // Compute the new tree layout.
+                              var nodes = tree.nodes(root).reverse();
+                              console.log(nodes)
+                              // Update the nodes…
+                              var node = vis.selectAll("g.node")
+                              .data(nodes, function(d) { return d.id || (d.id = ++i); });
+
+                              var nodeEnter = node.enter().append("svg:g")
+                              .attr("class", "node")
+                              .attr("transform", function(d) { return "translate(" + source.y0 + "," + source.x0 + ")"; });
+                                    //.style("opacity", 1e-6);
+
+                              // Enter any new nodes at the parent's previous position.
+
+                              nodeEnter.append("svg:circle")
+                                  //.attr("class", "node")
+                                  //.attr("cx", function(d) { return source.x0; })
+                                  //.attr("cy", function(d) { return source.y0; })
+                                  .attr("r", 4.5)
+                                  .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; })
+                                  .on("click", click);
+
+                                  nodeEnter.append("svg:text")
+                                  .attr("x", function(d) { return d._children ? -8 : 8; })
+                                  .attr("y", 3)
+                                    //.attr("fill","#ccc")
+                                    //.attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; })
+                                    .text(function(d) { return d.name; });
+
+                              // Transition nodes to their new position.
+                              nodeEnter.transition()
+                              .duration(duration)
+                              .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; })
+                              .style("opacity", 1)
+                              .select("circle")
+                                    //.attr("cx", function(d) { return d.x; })
+                                    //.attr("cy", function(d) { return d.y; })
+                                    .style("fill", "lightsteelblue");
+
+                                    node.transition()
+                                    .duration(duration)
+                                    .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; })
+                                    .style("opacity", 1);
+
+
+                                    node.exit().transition()
+                                    .duration(duration)
+                                    .attr("transform", function(d) { return "translate(" + source.y + "," + source.x + ")"; })
+                                    .style("opacity", 1e-6)
+                                    .remove();
+                              // Update the links…
+                              var link = vis.selectAll("path.link")
+                              .data(tree.links(nodes), function(d) { return d.target.id; });
+
+                              // Enter any new links at the parent's previous position.
+                              link.enter().insert("svg:path", "g")
+                              .attr("class", "link")
+                              .attr("d", function(d) {
+                                var o = {x: source.x0, y: source.y0};
+                                return diagonal({source: o, target: o});
+                            })
+                              .transition()
+                              .duration(duration)
+                              .attr("d", diagonal);
+
+                              // Transition links to their new position.
+                              link.transition()
+                              .duration(duration)
+                              .attr("d", diagonal);
+
+                              // Transition exiting nodes to the parent's new position.
+                              link.exit().transition()
+                              .duration(duration)
+                              .attr("d", function(d) {
+                                var o = {x: source.x, y: source.y};
+                                return diagonal({source: o, target: o});
+                            })
+                              .remove();
+
+                              // Stash the old positions for transition.
+                              nodes.forEach(function(d) {
+                                d.x0 = d.x;
+                                d.y0 = d.y;
+                            });
+                          }
+
+                            // Toggle children on click.
+                            function click(d) {
+                              if (d.children) {
+                                d._children = d.children;
+                                d.children = null;
+                            } else {
+                                d.children = d._children;
+                                d._children = null;
+                            }
+                            update(d);
+                        }
+
+                        d3.select(self.frameElement).style("height", "2000px");
+                    </script>
+                </div>
+            </main>
+            <nav id="sidebar">
+                <div class="widget">
+                    <h3>Exercises</h3>
+                    <ul>
+                        <li><a href="../Point1/point1.html">Exercise #1 (Avaliable for Mozilla)</a></li>
+                        <li><a href="../point2.html">Exercise 2</a></li>
+                        <li><a href="../point3.html">Exercise 3</a></li>
+                        <li><a href="../Point4/point4.html">Exercise 4 (Avaliable for Mozilla)</a></li>
+                        <li><a href="../Point5/point5.html">Exercise 5 (Avaliable for Mozilla)</a></li>
+                        <li><a href="../Point6/point6.html">Exercise 6 (Avaliable for Mozilla)</a></li>
+                    </ul>
+                </div>
+            </nav>
+
+            <div class="clr"></div>
+        </div>
+    </div>
+
+    <div id="footerblurb">
+        <div id="footerblurb-inner">
+            <div class="column">
+                <h2><span>CIIC 8995/5995</span></h2>
+            </div>  
+            <div class="column">
+                <h2><span>Manuel Rodriguez</span></h2>
+            </div>
+            <div class="column">
+                <h2><span>Big Data Analytics</span></h2>
+            </div>  
+
+            <div class="clr"></div>
+        </div>
+    </div>
+    <footer id="footer">
+        <div id="footer-inner">
+            <p>&copy; Cristian Garzon 2017 Copyright <a href="#">Your Site</a> &#124; <a href="#">Terms of Use</a> &#124; <a href="#">Privacy Policy</a></p>
+            <div class="clr"></div>
+        </div>
+    </footer>
+</div>
+</body>
+</html>
